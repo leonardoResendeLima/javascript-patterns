@@ -1,20 +1,31 @@
 (function (win, $) {
-	var RedCircle = function () {
-		this.item = $('<div class="circle"></div>');
-	};
 
-	var BlueCircle = function () {
+	function RedCircle() { }
+
+	RedCircle.prototype.create = function () {
+		this.item = $('<div class="circle"></div>');
+		return this;
+	}
+
+	function BlueCircle() { }
+
+	BlueCircle.prototype.create = function () {
 		this.item = $('<div class="circle" style="background:blue"></div>');
-	};
+		return this;
+	}
 
 	var CircleFactory = function () {
-		this.create = function (color) {
-			if (color === 'blue') {
-				return new BlueCircle();
-			} else {
-				return new RedCircle();
+		this.types = {};
+
+		this.create = function (type) {
+			return new this.types[type]().create();
+		}
+
+		this.register = function (type, cls) {
+			if (cls.prototype.create) {
+				this.types[type] = cls;
 			}
-		};
+		}
 	};
 
 	var CircleGeneratorSingleton = (function () {
@@ -26,7 +37,10 @@
 			var _aCircle = [];
 			// Área de staging
 			var _stage = $(".advert");
-			var cf = new CircleFactory();
+			var _cf = new CircleFactory();
+			_cf.register("blue", BlueCircle);
+			_cf.register("red", RedCircle);
+
 
 			// Private - Função de criação de posição
 			function _position(circle, left, top) {
@@ -36,7 +50,7 @@
 
 			// Função de criação de título 
 			function create(left, top, color) {
-				var circle = cf.create(color).item;
+				var circle = _cf.create(color).item;
 				_position(circle, left, top);
 				return circle;
 			}
@@ -76,7 +90,7 @@
 			// Com a instancia definida e o objeto retornado 
 			// init() com os métodos return index, create e append definidos
 			var cg = CircleGeneratorSingleton.getInstance();
-			
+
 			var circle = cg.create(
 				e.pageX - 25,
 				e.pageY - 25,
