@@ -1,28 +1,64 @@
 (function (win, $) {
 
-	function RedCircle() { }
+	///////////////////// Circle /////////////////////
 
-	RedCircle.prototype.create = function () {
+	function Circle() {
 		this.item = $('<div class="circle"></div>');
-		return this;
 	}
 
-	function BlueCircle() { }
-
-	BlueCircle.prototype.create = function () {
-		this.item = $('<div class="circle" style="background:blue"></div>');
-		return this;
+	Circle.prototype.color = function (clr) {
+		this.item.css('background', clr);
 	}
+
+	Circle.prototype.move = function (left, top) {
+		this.item.css('left', left);
+		this.item.css('top', top);
+	}
+
+	Circle.prototype.get = function () {
+		return this.item;
+	}
+
+	///////////////////// Red Circle /////////////////////
+
+	function RedCircleBuilder() {
+		this.item = new Circle();
+		this.init();
+	}
+
+	RedCircleBuilder.prototype.init = function () {
+		//...
+	}
+
+	RedCircleBuilder.prototype.get = function () {
+		return this.item;
+	}
+
+	///////////////////// Blue Circle /////////////////////
+
+	function BlueCircleBuilder() {
+		this.item = new Circle();
+		this.init();
+	}
+
+	BlueCircleBuilder.prototype.init = function () {
+		this.item.color("blue");
+	}
+
+	BlueCircleBuilder.prototype.get = function () {
+		return this.item;
+	}
+
+	///////////////////// Circle Factory /////////////////////
 
 	var CircleFactory = function () {
 		this.types = {};
 
 		this.create = function (type) {
-			return new this.types[type]().create();
+			return new this.types[type]().get();
 		}
-
 		this.register = function (type, cls) {
-			if (cls.prototype.create) {
+			if (cls.prototype.init && cls.prototype.get) {
 				this.types[type] = cls;
 			}
 		}
@@ -33,13 +69,11 @@
 		var instance;
 		// Função de inicialização
 		function init() {
-			// Array Privado com todos os circles
 			var _aCircle = [];
-			// Área de staging
 			var _stage = $(".advert");
 			var _cf = new CircleFactory();
-			_cf.register("blue", BlueCircle);
-			_cf.register("red", RedCircle);
+			_cf.register("blue", BlueCircleBuilder);
+			_cf.register("red", RedCircleBuilder);
 
 
 			// Private - Função de criação de posição
@@ -50,7 +84,7 @@
 
 			// Função de criação de título 
 			function create(left, top, color) {
-				var circle = _cf.create(color).item;
+				var circle = _cf.create(color).get();
 				_position(circle, left, top);
 				return circle;
 			}
