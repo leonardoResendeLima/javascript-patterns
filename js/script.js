@@ -1,5 +1,4 @@
 (function (win, $) {
-
 	///////////////////// Circle /////////////////////
 
 	function Circle() {
@@ -19,6 +18,19 @@
 		return this.item;
 	}
 
+	///////////////////// Rectangle /////////////////////
+
+	function clone(src, out) {
+		for (var attr in src.prototype) {
+			out.prototype[attr] = src.prototype[attr];
+		}
+	}
+	clone(Circle, Rect);
+
+	function Rect() {
+		this.item = $('<div class="rect"></div>');
+	}
+
 	///////////////////// Red Circle /////////////////////
 
 	function RedCircleBuilder() {
@@ -27,7 +39,6 @@
 	}
 
 	RedCircleBuilder.prototype.init = function () {
-		//...
 	}
 
 	RedCircleBuilder.prototype.get = function () {
@@ -43,6 +54,12 @@
 
 	BlueCircleBuilder.prototype.init = function () {
 		this.item.color("blue");
+
+		var rect = new Rect();
+		rect.color("yellow");
+		rect.move(40, 40);
+
+		this.item.get().append(rect.get());
 	}
 
 	BlueCircleBuilder.prototype.get = function () {
@@ -84,14 +101,14 @@
 
 			// Função de criação de título 
 			function create(left, top, color) {
-				var circle = _cf.create(color).get();
-				_position(circle, left, top);
+				var circle = _cf.create(color);
+				circle.move(left, top);
 				return circle;
 			}
 
 			// Função de append a área de stage e incrementação de array
 			function append(circle) {
-				_stage.append(circle);
+				_stage.append(circle.get());
 				_aCircle.push(circle);
 			}
 
