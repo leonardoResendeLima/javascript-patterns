@@ -68,7 +68,7 @@
 
 	///////////////////// Circle Factory /////////////////////
 
-	var CircleFactory = function () {
+	var ShapeFactory = function () {
 		this.types = {};
 
 		this.create = function (type) {
@@ -82,28 +82,30 @@
 	};
 
 	var CircleGeneratorSingleton = (function () {
-		// Instância Padrão
 		var instance;
-		// Função de inicialização
+
 		function init() {
 			var _aCircle = [];
-			var _stage = $(".advert");
-			var _cf = new CircleFactory();
-			_cf.register("blue", BlueCircleBuilder);
-			_cf.register("red", RedCircleBuilder);
+			var _stage;
+			var _sf = new ShapeFactory();
 
-
-			// Private - Função de criação de posição
 			function _position(circle, left, top) {
 				circle.css('left', left);
 				circle.css('top', top);
 			}
 
-			// Função de criação de título 
 			function create(left, top, color) {
-				var circle = _cf.create(color);
+				var circle = _sf.create(color);
 				circle.move(left, top);
 				return circle;
+			}
+
+			function registerShape(name, cls) {
+				_sf.register(name, cls);
+			}
+
+			function setStage(stage) {
+				_stage = $(".advert");
 			}
 
 			// Função de append a área de stage e incrementação de array
@@ -120,7 +122,9 @@
 			return {
 				index: index,
 				create: create,
-				append: append
+				append: append,
+				register: registerShape,
+				setStage: setStage
 			};
 		}
 
@@ -136,12 +140,12 @@
 	})();
 
 	$(win.document).ready(function () {
-		$('.advert').click(function (e) {
-			// Recuperando a instância do Singleton
-			// Com a instancia definida e o objeto retornado 
-			// init() com os métodos return index, create e append definidos
-			var cg = CircleGeneratorSingleton.getInstance();
+		var cg = CircleGeneratorSingleton.getInstance();
+		cg.register("blue", BlueCircleBuilder);
+		cg.register("red", RedCircleBuilder);
+		cg.setStage($('.advert'));
 
+		$('.advert').click(function (e) {
 			var circle = cg.create(
 				e.pageX - 25,
 				e.pageY - 25,
