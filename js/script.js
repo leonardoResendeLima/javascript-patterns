@@ -81,6 +81,25 @@
 		}
 	};
 
+	///////////////////// Stage Adaptor /////////////////////
+
+	function StageAdaptor(id) {
+		this.index = 0;
+		this.context = $(id);
+	}
+
+	StageAdaptor.prototype.SIG = "stageItem_";
+	StageAdaptor.prototype.add = function (item) {
+		++this.index;
+		item.addClass(this.SIG + this.index);
+		this.context.append(item);
+	}
+	StageAdaptor.prototype.remove = function (index) {
+		this.context.remove('.' + this.SIG + index);
+	}
+
+	///////////////////// Circle Generator Singleton /////////////////////
+
 	var CircleGeneratorSingleton = (function () {
 		var instance;
 
@@ -105,16 +124,14 @@
 			}
 
 			function setStage(stage) {
-				_stage = $(".advert");
+				_stage = stage;
 			}
 
-			// Função de append a área de stage e incrementação de array
-			function append(circle) {
-				_stage.append(circle.get());
+			function add(circle) {
+				_stage.add(circle.get());
 				_aCircle.push(circle);
 			}
 
-			// Função que retorna o indice da inserção do 
 			function index() {
 				return _aCircle.length();
 			}
@@ -122,7 +139,7 @@
 			return {
 				index: index,
 				create: create,
-				append: append,
+				add: add,
 				register: registerShape,
 				setStage: setStage
 			};
@@ -143,7 +160,7 @@
 		var cg = CircleGeneratorSingleton.getInstance();
 		cg.register("blue", BlueCircleBuilder);
 		cg.register("red", RedCircleBuilder);
-		cg.setStage($('.advert'));
+		cg.setStage(new StageAdaptor('.advert'));
 
 		$('.advert').click(function (e) {
 			var circle = cg.create(
@@ -151,7 +168,7 @@
 				e.pageY - 25,
 				'red');
 
-			cg.append(circle);
+			cg.add(circle);
 		});
 		$(document).keypress(function (e) {
 			if (e.key === 'a') {
@@ -161,7 +178,7 @@
 					Math.floor(Math.random() * 600),
 					'blue'
 				);
-				cg.append(circle);
+				cg.add(circle);
 			}
 		});
 	});
